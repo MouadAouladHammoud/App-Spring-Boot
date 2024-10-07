@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.User;
+import com.example.demo.request.UserRequest;
+import com.example.demo.response.UserResponse;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<Optional<List<User>>> getAll() {
-        Optional<List<User>> users = userService.getAll();
+    public ResponseEntity<Optional<List<UserResponse>>> getAll() {
+        Optional<List<UserResponse>> users = userService.getAll();
         if (users.isPresent() && !users.get().isEmpty()) {
            return ResponseEntity.ok(users); // 200 OK avec la liste des utilisateurs
         } else {
@@ -26,15 +28,10 @@ public class UserController {
         }
     }
 
-    @GetMapping("/get-all-2")
-    public Optional<List<User>> getAll2() {
-        return userService.getAll();
-    }
-
     @GetMapping("/{id_}")
-    public ResponseEntity<Optional<User>> findById(@PathVariable("id_") Long id) {
-        Optional<User> user = userService.findById(id);
-        if (user.isPresent()) {
+    public ResponseEntity<UserResponse> findById(@PathVariable("id_") Long id) {
+        UserResponse user = userService.findById(id);
+        if (user != null) {
             return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.noContent().build();
@@ -42,13 +39,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Optional<User>> save(@RequestBody User user) {
-        return ResponseEntity.ok(userService.save(user));
+    public ResponseEntity<Optional<UserResponse>> save(@RequestBody UserRequest userRequest) {
+        return ResponseEntity.ok(Optional.of(userService.save(userRequest)));
     }
 
     @PutMapping
-    public ResponseEntity<Optional<User>> update(@RequestBody User user) {
-        return ResponseEntity.ok(userService.update(user));
+    public ResponseEntity<UserResponse> update(@RequestBody UserRequest userRequest) {
+        return ResponseEntity.ok(userService.update(userRequest).orElse(null));
     }
 
     @DeleteMapping("/{id}")
