@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.User;
-import com.example.demo.request.UserRequest;
-import com.example.demo.response.UserResponse;
+import com.example.demo.dto.UserDto;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +17,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<Optional<List<UserResponse>>> getAll() {
-        Optional<List<UserResponse>> users = userService.getAll();
+    public ResponseEntity<Optional<List<UserDto>>> getAll() {
+        Optional<List<UserDto>> users = userService.getAll();
         if (users.isPresent() && !users.get().isEmpty()) {
            return ResponseEntity.ok(users); // 200 OK avec la liste des utilisateurs
         } else {
@@ -29,8 +27,8 @@ public class UserController {
     }
 
     @GetMapping("/{id_}")
-    public ResponseEntity<UserResponse> findById(@PathVariable("id_") Long id) {
-        UserResponse user = userService.findById(id);
+    public ResponseEntity<UserDto> findById(@PathVariable("id_") Long id) {
+        UserDto user = userService.findById(id);
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
@@ -39,13 +37,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Optional<UserResponse>> save(@RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(Optional.of(userService.save(userRequest)));
+    public ResponseEntity<Optional<UserDto>> save(@RequestBody UserDto userDto) {
+        return ResponseEntity.ok(Optional.of(userService.save(userDto)));
     }
 
     @PutMapping
-    public ResponseEntity<UserResponse> update(@RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userService.update(userRequest).orElse(null));
+    public ResponseEntity<UserDto> update(@RequestBody UserDto userDto) {
+        return ResponseEntity.ok(userService.update(userDto).orElse(null));
     }
 
     @DeleteMapping("/{id}")

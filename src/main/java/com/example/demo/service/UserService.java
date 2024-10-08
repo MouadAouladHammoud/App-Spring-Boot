@@ -1,77 +1,72 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.UserDto;
 import com.example.demo.entity.User;
-import com.example.demo.mapper.UserMapper;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.request.UserRequest;
-import com.example.demo.response.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    @Autowired
+    private UserRepository userRepository;
 
-    public Optional<List<UserResponse>> getAll() {
+    public Optional<List<UserDto>> getAll() {
         /*
         List<User> users = userRepository.findAll();
         // return Optional.of(users); // public  Optional<List<User>> getAll() {...}
         return Optional.of(
                 users
                 .stream()
-                .map(userMapper::fromUser)
+                .map(UserDto::fromUser)
                 .collect(Collectors.toList())
         );
         */
 
-        List<UserResponse> userResponses = new ArrayList<>();
+        List<UserDto> usersDto = new ArrayList<>();
         List<User> users = userRepository.findAll();
         for (User user : users) {
-            userResponses.add(userMapper.fromUser(user));
+            usersDto.add(UserDto.fromUser(user));
         }
-        return Optional.of(userResponses);
+        return Optional.of(usersDto);
     }
 
-    public UserResponse findById(Long id) {
+    public UserDto findById(Long id) {
         /*
-        // UserResponse user = userRepository.findById(id).map(userMapper::fromUser).orElse(null);
+        // UserDto user = userRepository.findById(id).map(UserDto::fromUser).orElse(null);
         User u = userRepository.findById(id).orElse(null);
-        UserResponse user2 = (u != null) ? userMapper.fromUser(u) : null;
+        UserDto user2 = (u != null) ? UserDto.fromUser(u) : null;
+        return user2;
         */
 
         User user = userRepository.findById(id).orElse(null);
         if (user != null) {
-            return userMapper.fromUser(user);
+            return UserDto.fromUser(user);
         }
         return null;
     }
 
-    public UserResponse save(UserRequest userRequest) {
-        User userSaved = User.builder()
-                .name(userRequest.name())
-                .email(userRequest.email())
-                .age(userRequest.age()).
-                build();
-        User user = userRepository.save(userSaved);
-        return userMapper.fromUser(user);
+    public UserDto save(UserDto userDto_) {
+        User user = userRepository.save(UserDto.toUser(userDto_));
+        return UserDto.fromUser(user);
     }
 
-    public Optional<UserResponse> update(UserRequest userRequest) {
-        Optional<User> user_ = userRepository.findById(userRequest.id());
+    public Optional<UserDto> update(UserDto userDto_) {
+        Optional<User> user_ = userRepository.findById(userDto_.getId());
         if (user_.isPresent()) {
             User existingUser = user_.get();
-            existingUser.setName(userRequest.name());
-            existingUser.setEmail(userRequest.email());
-            existingUser.setAge(userRequest.age());
+            existingUser.setName(userDto_.getName());
+            existingUser.setEmail(userDto_.getEmail());
+            existingUser.setAge(userDto_.getAge());
             userRepository.save(existingUser);
-            return Optional.of(userMapper.fromUser(existingUser));
+            return Optional.of(UserDto.fromUser(existingUser));
         } else {
             return Optional.empty();
         }
