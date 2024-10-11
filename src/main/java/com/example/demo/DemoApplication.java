@@ -68,7 +68,31 @@ public class DemoApplication {
 			SaleLine saleLine4 = new SaleLine(null, 1, 10.99f, sale2, product2);
 			SaleLine saleLine5 = new SaleLine(null, 3, 10.99f, sale2, product3);
 			SaleLine saleLine6 = new SaleLine(null, 3, 10.99f, sale3, product2);
-			saleLineRepository.saveAll(List.of(saleLine1, saleLine2, saleLine3, saleLine4, saleLine5, saleLine6));
+
+			// En supposant que nous avons déjà un identifiant (id) de "Sale" et de "Product" qui est égal à 1L.
+			//   Ici, nous pouvons même créer un "SaleLine" dans la base de données avec le "Sale" associé en indiquant simplement l'id de "Sale" dans saleLineRepository().
+			//   Pas besoin d'initialiser l'objet "Sale" complet pour initialiser "SaleLine" afin de l'utiliser dans saleLineRepository() pour le créer dans la base de données.
+			//   Car saleLineRepository().save() dans ce scénario a seulement besoin de l'id de "Sale". (voir le fichier: SaleLine.java => @JoinColumn(name = "sale_id") private Sale sale;)
+			//   c'est le meme principe avec "Product".
+			SaleLine saleLine7 = SaleLine.builder()
+					.quantity(4)
+					.unitPrice(12.33f)
+					.sale(new Sale(1L, null, null, null, null))  // SaleLine.java => @JoinColumn(name = "sale_id") private Sale sale;
+					.product(new Product(1L, null, null)) // SaleLine.java => @JoinColumn(name = "product_id") private Product product;
+					.build();
+
+			SaleLine saleLine8 = SaleLine.builder()
+					.quantity(4)
+					.unitPrice(12.33f)
+					.sale(
+							Sale.builder()
+									.id(1L)
+									.build()
+					)
+					.product(new Product(1L, null, null))
+					.build();
+
+			saleLineRepository.saveAll(List.of(saleLine1, saleLine2, saleLine3, saleLine4, saleLine5, saleLine6, saleLine7, saleLine8));
 		};
 	}
 
