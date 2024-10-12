@@ -33,7 +33,7 @@ public class UserController {
 
     @GetMapping("/{id_}")
     public ResponseEntity<Optional<User>> findById(@PathVariable("id_") Long id) {
-        Optional<User> user = userService.findById(id);
+        Optional<User> user = Optional.ofNullable(userService.findById(id));
         if (user.isPresent()) {
             return ResponseEntity.ok(user);
         } else {
