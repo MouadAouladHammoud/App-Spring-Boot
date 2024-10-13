@@ -6,7 +6,6 @@ import com.example.demo.exception.ErrorCodes;
 import com.example.demo.exception.InvalidEntityException;
 import com.example.demo.exception.InvalidOperationException;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,12 +40,6 @@ public class UserService {
     }
 
     public Optional<User> save(User user) {
-        List<String> errors = UserValidator.validate(user);
-        if (!errors.isEmpty()) {
-            log.error("User is not valid {}", user);
-            throw new InvalidEntityException("L'utilisateur est invalide", ErrorCodes.USER_NOT_VALID, errors);
-        }
-
         if(userAlreadyExists(user.getEmail())) {
             throw new InvalidEntityException("Un autre utilisateur avec le même email existe déjà", ErrorCodes.USER_ALREADY_EXISTS, Collections.singletonList("Un autre utilisateur avec le même email existe déjà dans la base de données."));
         }
@@ -60,10 +53,12 @@ public class UserService {
     }
 
     public Optional<User> update(User user) {
-        List<String> errors = UserValidator.validate(user);
-        if (!errors.isEmpty()) {
-            log.error("User is not valid {}", user);
-            throw new InvalidEntityException("L'utilisateur est invalide", ErrorCodes.USER_NOT_VALID, errors);
+        if (userRepository.existsByEmailAndIdNot(user.getEmail(), user.getId())) {
+            throw new InvalidEntityException(
+                    "Un autre utilisateur avec le même email existe déjà",
+                    ErrorCodes.USER_ALREADY_EXISTS,
+                    Collections.singletonList("Un autre utilisateur avec le même email existe déjà dans la base de données.")
+            );
         }
 
         Optional<User> user_ = userRepository.findById(user.getId());
